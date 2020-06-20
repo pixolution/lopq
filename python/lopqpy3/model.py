@@ -6,11 +6,12 @@ import logging
 import sys
 from collections import namedtuple
 from .utils import iterate_splits, predict_cluster
+from .utils import concat_new_first
+from .lopq_model_pb2 import LOPQModelParams  
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
 logger.addHandler(logging.StreamHandler(sys.stdout))
-
 
 ########################################
 # Core training algo
@@ -37,8 +38,9 @@ def eigenvalue_allocation(num_buckets, eigenvalues):
     :returns ndarray:
         a vector of indices by which to permute the eigenvectors
     """
+    num_buckets = int(num_buckets)
     D = len(eigenvalues)
-    dims_per_bucket = D / num_buckets
+    dims_per_bucket = int(D / num_buckets)
     eigenvalue_product = np.zeros(num_buckets, dtype=float)
     bucket_size = np.zeros(num_buckets, dtype=int)
     permutation = np.zeros((num_buckets, dims_per_bucket), dtype=int)
@@ -139,7 +141,7 @@ def accumulate_covariance_estimators(data, C):
     residuals = np.zeros((N, D))            # residual for data points given cluster assignment
 
     # Iterate data points, accumulate estimators
-    for i in xrange(N):
+    for i in range(N):
         d = data[i]
 
         # Find cluster assignment and residual
@@ -182,7 +184,7 @@ def compute_rotations_from_accumulators(A, mu, count, num_buckets):
 
     # For each cluster, use accumulator variables to estimate covariance matrix
     # and compute rotation matrix
-    for i in xrange(V):
+    for i in range(V):
 
         # Normalize
         num_points = count[i]
@@ -226,7 +228,7 @@ def project_residuals_to_local(residuals, assignments, Rs, mu):
         an NxD array of locally projected residuals
     """
     projected = np.zeros(residuals.shape)
-    for i in xrange(residuals.shape[0]):
+    for i in range(residuals.shape[0]):
         res = residuals[i]
         a = assignments[i]
         projected[i] = np.dot(Rs[a], res - mu[a])
@@ -679,7 +681,7 @@ class LOPQModel(object):
         Cs = concat_new_first(self.Cs)
         Rs = concat_new_first(self.Rs)
         mus = concat_new_first(self.mus)
-        subs = concat_new_first(map(concat_new_first, self.subquantizers))
+        subs = concat_new_first(list(map(concat_new_first, self.subquantizers)))
 
         savemat(filename, {'Cs': Cs, 'Rs': Rs, 'mus': mus, 'subs': subs, 'V': self.V, 'M': self.M})
 
@@ -693,11 +695,11 @@ class LOPQModel(object):
         d = loadmat(filename)
 
         M = d['M'][0][0]
-        Cs = tuple(map(np.squeeze, np.split(d['Cs'], 2, axis=0)))
-        Rs = tuple(map(np.squeeze, np.split(d['Rs'], 2, axis=0)))
-        mus = tuple(map(np.squeeze, np.split(d['mus'], 2, axis=0)))
+        Cs = tuple(list(map(np.squeeze, np.split(d['Cs'], 2, axis=0))))
+        Rs = tuple(list(map(np.squeeze, np.split(d['Rs'], 2, axis=0))))
+        mus = tuple(list(map(np.squeeze, np.split(d['mus'], 2, axis=0))))
 
-        subs = tuple([map(np.squeeze, np.split(half, M / 2, axis=0)) for half in map(np.squeeze, np.split(d['subs'], 2, axis=0))])
+        subs = tuple([list(map(np.squeeze, np.split(half, M / 2, axis=0))) for half in list(map(np.squeeze, np.split(d['subs'], 2, axis=0)))])
 
         return LOPQModel(parameters=(Cs, Rs, mus, subs))
 
@@ -705,7 +707,7 @@ class LOPQModel(object):
         """
         Export model parameters in protobuf format.
         """
-        from .lopq_model_pb2 import LOPQModelParams
+        from lopq_model_pb2 import LOPQModelParams
         from itertools import chain
 
         lopq_params = LOPQModelParams()
@@ -715,12 +717,12 @@ class LOPQModel(object):
         lopq_params.num_subquantizers = self.subquantizer_clusters
 
         def matrix_from_ndarray(m, a):
-            m.values.extend(map(float, np.nditer(a, order='C')))
+            m.values.extend(list(map(float, np.nditer(a, order='C'))))
             m.shape.extend(a.shape)
             return m
 
         def vector_from_ndarray(m, a):
-            m.values.extend(map(float, np.nditer(a, order='C')))
+            m.values.extend(list(map(float, np.nditer(a, order='C'))))
             return m
 
         if self.Cs != None:
@@ -746,16 +748,15 @@ class LOPQModel(object):
         """
         Reconstitute a model from parameters stored in protobuf format.
         """
-        from .lopq_model_pb2 import LOPQModelParams
-        from .utils import concat_new_first
 
         def halves(arr):
-            return [arr[:len(arr) / 2], arr[len(arr) / 2:]]
+            return [arr[:int(len(arr) / 2)], arr[int(len(arr) / 2):]]
 
         lopq_params = LOPQModelParams()
 
         try:
-            f = open(filename)
+            f = open(filename, 'rb')
+            #print(dir(lopq_params))
             lopq_params.ParseFromString(f.read())
             f.close()
 
@@ -763,14 +764,14 @@ class LOPQModel(object):
             if len(lopq_params.Cs) != 0:
                 Cs = [np.reshape(C.values, C.shape) for C in lopq_params.Cs]
             if len(lopq_params.Rs) != 0:
-                Rs = map(concat_new_first, halves([np.reshape(R.values, R.shape) for R in lopq_params.Rs]))
+                Rs = list(map(concat_new_first, halves([np.reshape(R.values, R.shape) for R in lopq_params.Rs])))
             if len(lopq_params.mus) != 0:
-                mus = map(concat_new_first, halves([np.array(mu.values) for mu in lopq_params.mus]))
+                mus = list(map(concat_new_first, halves([np.array(mu.values) for mu in lopq_params.mus])))
             if len(lopq_params.subs) != 0:
                 subs = halves([np.reshape(sub.values, sub.shape) for sub in lopq_params.subs])
 
             return LOPQModel(parameters=(Cs, Rs, mus, subs))
 
         except IOError:
-            print filename + ": Could not open file."
+            print(filename + ": Could not open file.")
             return None

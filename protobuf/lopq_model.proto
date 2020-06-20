@@ -1,3 +1,5 @@
+syntax = "proto3";
+
 // Copyright 2015, Yahoo Inc.
 // Licensed under the terms of the Apache License, Version 2.0. See the LICENSE file associated with the project for terms.
 
@@ -29,10 +31,10 @@ message Matrix {
 // file extension: .lopq
 message LOPQModelParams {
 
-    optional uint32 D = 1;                  // dimensionality of original vectors
-    optional uint32 V = 2;                  // number of coarse quantizer centroids
-    optional uint32 M = 3;                  // number of subvectors
-    optional uint32 num_subquantizers = 4;  // number of subquantizer clusters
+    uint32 D = 1;                  // dimensionality of original vectors
+    uint32 V = 2;                  // number of coarse quantizer centroids
+    uint32 M = 3;                  // number of subvectors
+    uint32 num_subquantizers = 4;  // number of subquantizer clusters
 
     repeated Matrix Cs = 5;                 // coarse quantizer centroids - 2 of these; size V x (D/2)
     repeated Matrix Rs = 6;                 // rotations - 2 * V of these, each size D/2 x D/2

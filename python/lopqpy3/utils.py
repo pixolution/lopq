@@ -3,7 +3,7 @@
 import numpy as np
 import multiprocessing
 from itertools import chain
-
+from functools import reduce
 
 def iterate_splits(x, splits):
     """
@@ -17,16 +17,16 @@ def iterate_splits(x, splits):
         subvector, split index pairs
     """
     split_size = len(x) / splits
-    for split in xrange(splits):
+    for split in range(splits):
         start = split * split_size
-        yield x[start:start + split_size], split
+        yield x[int(start):int(start + split_size)], split
 
 
 def concat_new_first(arrs):
     """
     Helper to concatenate a list of ndarrays along a new first dimension.
     """
-    arrs = map(lambda x: x[np.newaxis, ...], arrs)
+    arrs = list(map(lambda x: x[np.newaxis, ...], arrs))
     return np.concatenate(arrs, axis=0)
 
 
@@ -74,8 +74,8 @@ def load_xvecs(filename, base_type='f', max_num=None):
 
     f.seek(0)
     A = np.zeros((max_num, D), dtype=py_type)
-    for i in xrange(max_num):
-        for j in xrange(D + 1):
+    for i in range(max_num):
+        for j in range(D + 1):
             if j == 0:
                 np.uint32(struct.unpack(format_code, f.read(4)))
             else:
@@ -115,22 +115,20 @@ def save_xvecs(data, filename, base_type='f'):
     f.close()
 
 
-def parmap(f, X, nprocs=multiprocessing.cpu_count()):
-    """
-    Parallel map implementation adapted from http://stackoverflow.com/questions/3288595/multiprocessing-using-pool-map-on-a-function-defined-in-a-class
-    """
+def func_wrap(f, q_in, q_out, model):
+    while True:
+        i, x = q_in.get()
+        if i is None:
+            break
+        q_out.put((i, f(model, x)))
 
-    def func_wrap(f, q_in, q_out):
-        while True:
-            i, x = q_in.get()
-            if i is None:
-                break
-            q_out.put((i, f(x)))
-
+def parmap(f, X, model, nprocs=multiprocessing.cpu_count()):
+    """
+    Parallel map implementation adapted from http://stackoverflow.com/questions/3288595/multiprocessinging-using-pool-map-on-a-function-defined-in-a-class
+    """
     q_in = multiprocessing.Queue(1)
     q_out = multiprocessing.Queue()
-
-    proc = [multiprocessing.Process(target=func_wrap, args=(f, q_in, q_out)) for _ in range(nprocs)]
+    proc = [multiprocessing.Process(target=func_wrap, args=(f, q_in, q_out, model)) for _ in range(nprocs)]
     for p in proc:
         p.daemon = True
         p.start()
@@ -138,7 +136,6 @@ def parmap(f, X, nprocs=multiprocessing.cpu_count()):
     sent = [q_in.put((i, x)) for i, x in enumerate(X)]
     [q_in.put((None, None)) for _ in range(nprocs)]
     res = [q_out.get() for _ in range(len(sent))]
-
     [p.join() for p in proc]
     [p.terminate() for p in proc]
 
@@ -159,6 +156,9 @@ def get_chunk_ranges(N, num_procs):
     return data_ranges
 
 
+def compute_partition(model, data):
+    return [model.predict(d) for d in data]
+
 def compute_codes_parallel(data, model, num_procs=4):
     """
     A helper function that parallelizes the computation of LOPQ codes in 
@@ -174,11 +174,8 @@ def compute_codes_parallel(data, model, num_procs=4):
     :returns iterable:
         an iterable of computed codes in the input order
     """
-    def compute_partition(data):
-        return [model.predict(d) for d in data]
-
     N = len(data)
-    partitions = [data[a:b] for a, b in get_chunk_ranges(N, num_procs)]
-    codes = parmap(compute_partition, partitions, num_procs)
+    partitions = [data[int(a):int(b)] for a, b in get_chunk_ranges(N, num_procs)]
+    codes = parmap(compute_partition, partitions, model, num_procs)
 
     return chain(*codes)

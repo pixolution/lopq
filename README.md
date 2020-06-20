@@ -7,6 +7,9 @@
 
 This is Python training and testing code for Locally Optimized Product Quantization (LOPQ) models, as well as Spark scripts to scale training to hundreds of millions of vectors. The resulting model can be used in Python with code provided here or deployed via a Protobuf format to, e.g., search backends for high performance approximate nearest neighbor search.
 
+# install locally from the repo (python 3.x)
+- pip install .
+
 ### Overview
 
 Locally Optimized Product Quantization (LOPQ) [1] is a hierarchical quantization algorithm that produces codes of configurable length for data points. These codes are efficient representations of the original vector and can be used in a variety of ways depending on the application, including as hashes that preserve locality, as a compressed vector from which an approximate vector in the data space can be reconstructed, and as a representation from which to compute an approximation of the Euclidean distance between points.

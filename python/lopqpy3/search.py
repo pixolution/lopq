@@ -56,7 +56,7 @@ def multisequence(x, centroids):
     # Initialize priority queue
     h = []
     traversed = set()
-    start_inds = tuple(0 for _ in xrange(splits))
+    start_inds = tuple(0 for _ in range(splits))
     start_dist = dist_for_cell(cell_for_inds(start_inds))
     heapq.heappush(h, (start_dist, start_inds))
 
@@ -201,10 +201,10 @@ class LOPQSearcherBase(object):
 
         if with_dists:
             Result = namedtuple('Result', ['id', 'code', 'dist'])
-            results = map(lambda d: Result(d[1][0], d[1][1], d[0]), results)
+            results = list(map(lambda d: Result(d[1][0], d[1][1], d[0]), results))
         else:
             Result = namedtuple('Result', ['id', 'code'])
-            results = map(lambda d: Result(d[1][0], d[1]), results)
+            results = list(map(lambda d: Result(d[1][0], d[1]), results))
 
         return results, visited
 

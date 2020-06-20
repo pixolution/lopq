@@ -18,9 +18,9 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='lopq_model.proto',
   package='com.flickr.vision.lopq',
-  serialized_pb=_b('\n\x10lopq_model.proto\x12\x16\x63om.flickr.vision.lopq\"\x1c\n\x06Vector\x12\x12\n\x06values\x18\x01 \x03(\x02\x42\x02\x10\x01\"+\n\x06Matrix\x12\x12\n\x06values\x18\x01 \x03(\x02\x42\x02\x10\x01\x12\r\n\x05shape\x18\x02 \x03(\r\"\x80\x02\n\x0fLOPQModelParams\x12\t\n\x01\x44\x18\x01 \x01(\r\x12\t\n\x01V\x18\x02 \x01(\r\x12\t\n\x01M\x18\x03 \x01(\r\x12\x19\n\x11num_subquantizers\x18\x04 \x01(\r\x12*\n\x02\x43s\x18\x05 \x03(\x0b\x32\x1e.com.flickr.vision.lopq.Matrix\x12*\n\x02Rs\x18\x06 \x03(\x0b\x32\x1e.com.flickr.vision.lopq.Matrix\x12+\n\x03mus\x18\x07 \x03(\x0b\x32\x1e.com.flickr.vision.lopq.Vector\x12,\n\x04subs\x18\x08 \x03(\x0b\x32\x1e.com.flickr.vision.lopq.MatrixB/\n\x16\x63om.flickr.vision.lopqB\x13LOPQModelParametersH\x01')
+  syntax='proto3',
+  serialized_pb=_b('\n\x10lopq_model.proto\x12\x16\x63om.flickr.vision.lopq\"\x1c\n\x06Vector\x12\x12\n\x06values\x18\x01 \x03(\x02\x42\x02\x10\x01\"+\n\x06Matrix\x12\x12\n\x06values\x18\x01 \x03(\x02\x42\x02\x10\x01\x12\r\n\x05shape\x18\x02 \x03(\r\"\x80\x02\n\x0fLOPQModelParams\x12\t\n\x01\x44\x18\x01 \x01(\r\x12\t\n\x01V\x18\x02 \x01(\r\x12\t\n\x01M\x18\x03 \x01(\r\x12\x19\n\x11num_subquantizers\x18\x04 \x01(\r\x12*\n\x02\x43s\x18\x05 \x03(\x0b\x32\x1e.com.flickr.vision.lopq.Matrix\x12*\n\x02Rs\x18\x06 \x03(\x0b\x32\x1e.com.flickr.vision.lopq.Matrix\x12+\n\x03mus\x18\x07 \x03(\x0b\x32\x1e.com.flickr.vision.lopq.Vector\x12,\n\x04subs\x18\x08 \x03(\x0b\x32\x1e.com.flickr.vision.lopq.MatrixB/\n\x16\x63om.flickr.vision.lopqB\x13LOPQModelParametersH\x01\x62\x06proto3')
 )
-_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
 
@@ -38,7 +38,7 @@ _VECTOR = _descriptor.Descriptor(
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=_descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))),
+      options=_descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001')), file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -47,6 +47,7 @@ _VECTOR = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
@@ -68,14 +69,14 @@ _MATRIX = _descriptor.Descriptor(
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=_descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))),
+      options=_descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001')), file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='shape', full_name='com.flickr.vision.lopq.Matrix.shape', index=1,
       number=2, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -84,6 +85,7 @@ _MATRIX = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
@@ -105,56 +107,56 @@ _LOPQMODELPARAMS = _descriptor.Descriptor(
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='V', full_name='com.flickr.vision.lopq.LOPQModelParams.V', index=1,
       number=2, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='M', full_name='com.flickr.vision.lopq.LOPQModelParams.M', index=2,
       number=3, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='num_subquantizers', full_name='com.flickr.vision.lopq.LOPQModelParams.num_subquantizers', index=3,
       number=4, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='Cs', full_name='com.flickr.vision.lopq.LOPQModelParams.Cs', index=4,
       number=5, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='Rs', full_name='com.flickr.vision.lopq.LOPQModelParams.Rs', index=5,
       number=6, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='mus', full_name='com.flickr.vision.lopq.LOPQModelParams.mus', index=6,
       number=7, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='subs', full_name='com.flickr.vision.lopq.LOPQModelParams.subs', index=7,
       number=8, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -163,6 +165,7 @@ _LOPQMODELPARAMS = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
@@ -177,6 +180,7 @@ _LOPQMODELPARAMS.fields_by_name['subs'].message_type = _MATRIX
 DESCRIPTOR.message_types_by_name['Vector'] = _VECTOR
 DESCRIPTOR.message_types_by_name['Matrix'] = _MATRIX
 DESCRIPTOR.message_types_by_name['LOPQModelParams'] = _LOPQMODELPARAMS
+_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Vector = _reflection.GeneratedProtocolMessageType('Vector', (_message.Message,), dict(
   DESCRIPTOR = _VECTOR,
