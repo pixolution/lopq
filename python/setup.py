@@ -4,10 +4,10 @@ setup(
     name='lopqpy3',
     version='1.0.0',
     description='yahoo lopq for product quantization',
-    url='https://github.com/anas-899/lopq.git',
-    'author': 'Clayton Mellina,Yannis Kalantidis,Huy Nguyen',
-    'author_email': 'clayton@yahoo-inc.com',
-	'license': 'Apache-2.0',
+    url='https://github.com/pixolution/lopq.git',
+    author='Clayton Mellina,Yannis Kalantidis,Huy Nguyen',
+    author_email='clayton@yahoo-inc.com',
+    license='Apache-2.0',
     packages=[
         'lopqpy3'
     ],
