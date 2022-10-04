@@ -5,7 +5,7 @@ import multiprocessing
 from itertools import chain
 from functools import reduce
 
-def iterate_splits(x, splits):
+def iterate_splits(x, splits: int):
     """
     A helper to iterate subvectors.
 
@@ -16,6 +16,7 @@ def iterate_splits(x, splits):
     :returns (np.array, int):
         subvector, split index pairs
     """
+    splits = int(splits)
     split_size = len(x) / splits
     for split in range(splits):
         start = split * split_size
@@ -71,6 +72,7 @@ def load_xvecs(filename, base_type='f', max_num=None):
 
     if max_num is None:
         max_num = N
+    max_num = int(max_num)
 
     f.seek(0)
     A = np.zeros((max_num, D), dtype=py_type)

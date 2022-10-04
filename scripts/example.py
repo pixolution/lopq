@@ -4,20 +4,21 @@ import sys
 import os
 
 # Add the lopq module - not needed if they are available in the python environment
-sys.path.append(os.path.abspath('../python'))
+#sys.path.append(os.path.abspath('../python'))
 
 import numpy as np
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 
-from lopq import LOPQModel, LOPQSearcher
-from lopq.eval import compute_all_neighbors, get_recall
-from lopq.model import eigenvalue_allocation
+from lopqpy3 import LOPQModel, LOPQSearcher
+from lopqpy3.eval import compute_all_neighbors, get_recall
+from lopqpy3.model import eigenvalue_allocation
+from functools import reduce
 
 
 def load_oxford_data():
-    from lopq.utils import load_xvecs
+    from lopqpy3.utils import load_xvecs
 
-    data = load_xvecs('../data/oxford/oxford_features.fvecs')
+    data = load_xvecs('./data/oxford/oxford_features.fvecs')
     return data
 
 
@@ -97,7 +98,7 @@ def main():
     searcher = LOPQSearcher(m)
     searcher.add_data(train)
     recall, _ = get_recall(searcher, test, nns)
-    print 'Recall (V=%d, M=%d, subquants=%d): %s' % (m.V, m.M, m.subquantizer_clusters, str(recall))
+    print('Recall (V=%d, M=%d, subquants=%d): %s' % (m.V, m.M, m.subquantizer_clusters, str(recall)))
 
     # We can experiment with other hyperparameters without discarding all
     # parameters everytime. Here we train a new model that uses the same coarse
@@ -109,7 +110,7 @@ def main():
     searcher = LOPQSearcher(m2)
     searcher.add_data(train)
     recall, _ = get_recall(searcher, test, nns)
-    print 'Recall (V=%d, M=%d, subquants=%d): %s' % (m2.V, m2.M, m2.subquantizer_clusters, str(recall))
+    print('Recall (V=%d, M=%d, subquants=%d): %s' % (m2.V, m2.M, m2.subquantizer_clusters, str(recall)))
 
     # The recall is probably higher. We got better recall with a finer quantization
     # at the expense of more data required for index items.
@@ -122,7 +123,7 @@ def main():
     searcher = LOPQSearcher(m3)
     searcher.add_data(train)
     recall, _ = get_recall(searcher, test, nns)
-    print 'Recall (V=%d, M=%d, subquants=%d): %s' % (m3.V, m3.M, m3.subquantizer_clusters, str(recall))
+    print('Recall (V=%d, M=%d, subquants=%d): %s' % (m3.V, m3.M, m3.subquantizer_clusters, str(recall)))
 
     # The recall is probably better than the first but worse than the second. We increased recall
     # only a little by increasing the number of model parameters (double the subquatizer centroids),

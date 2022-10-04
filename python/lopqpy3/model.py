@@ -242,7 +242,7 @@ def compute_residuals(data, C):
     return residuals, assignments
 
 
-def train_coarse(data, V=8, kmeans_coarse_iters=10, n_init=10, random_state=None, n_jobs=1):
+def train_coarse(data, V=8, kmeans_coarse_iters=10, n_init=10, random_state=None):
     """
     Train a kmeans model.
 
@@ -254,8 +254,6 @@ def train_coarse(data, V=8, kmeans_coarse_iters=10, n_init=10, random_state=None
         the nubmer of iterations
     :param int random_state:
         a random state to seed the clustering
-    :param int n_jobs:
-        the number of jobs to use for KMeans cluster computation
 
     :returns ndarray:
         a VxD matrix of cluster centroids
@@ -264,7 +262,7 @@ def train_coarse(data, V=8, kmeans_coarse_iters=10, n_init=10, random_state=None
     logger.info('Fitting coarse quantizer...')
 
     # Fit coarse model
-    model = KMeans(n_clusters=V, init="k-means++", max_iter=kmeans_coarse_iters, n_init=n_init, n_jobs=n_jobs, verbose=False, random_state=random_state)
+    model = KMeans(n_clusters=V, init="k-means++", max_iter=kmeans_coarse_iters, n_init=n_init, verbose=False, random_state=random_state)
     model.fit(data)
 
     logger.info('Done fitting coarse quantizer.')
@@ -272,7 +270,7 @@ def train_coarse(data, V=8, kmeans_coarse_iters=10, n_init=10, random_state=None
     return model.cluster_centers_
 
 
-def train_subquantizers(data, num_buckets, subquantizer_clusters=256, kmeans_local_iters=20, n_init=10, random_state=None, n_jobs=1):
+def train_subquantizers(data, num_buckets, subquantizer_clusters=256, kmeans_local_iters=20, n_init=10, random_state=None):
     """
     Fit a set of num_buckets subquantizers for corresponding subvectors.
     """
@@ -280,7 +278,7 @@ def train_subquantizers(data, num_buckets, subquantizer_clusters=256, kmeans_loc
     subquantizers = list()
     for i, d in enumerate(np.split(data, num_buckets, axis=1)):
         model = KMeans(n_clusters=subquantizer_clusters, init="k-means++", max_iter=kmeans_local_iters,
-                       n_init=n_init, n_jobs=n_jobs, verbose=False, random_state=random_state)
+                       n_init=n_init, verbose=False, random_state=random_state)
         model.fit(d)
         subquantizers.append(model.cluster_centers_)
         logger.info('Fit subquantizer %d of %d.' % (i + 1, num_buckets))
@@ -290,8 +288,8 @@ def train_subquantizers(data, num_buckets, subquantizer_clusters=256, kmeans_loc
 
 def train(data, V=8, M=4, subquantizer_clusters=256, parameters=None,
           kmeans_coarse_iters=10, kmeans_local_iters=20, n_init=10,
-          subquantizer_sample_ratio=1.0, random_state=None, verbose=False,
-          n_jobs=1):
+          subquantizer_sample_ratio=1.0, random_state=None, verbose=False
+          ):
     """
     Fit an LOPQ model.
 
@@ -321,8 +319,6 @@ def train(data, V=8, M=4, subquantizer_clusters=256, parameters=None,
         a random seed used in all random operations during training if provided
     :param bool verbose:
         a bool enabling verbose output during training
-    :param int n_jobs:
-        the number of jobs to use for KMeans cluster computation
 
     :returns tuple:
         a tuple of model parameters that can be used to instantiate an LOPQModel object
@@ -350,8 +346,8 @@ def train(data, V=8, M=4, subquantizer_clusters=256, parameters=None,
         logger.info('Using existing coarse quantizers.')
         C1, C2 = Cs
     else:
-        C1 = train_coarse(first_half, V, kmeans_coarse_iters, n_init, random_state, n_jobs)
-        C2 = train_coarse(second_half, V, kmeans_coarse_iters, n_init, random_state, n_jobs)
+        C1 = train_coarse(first_half, V, kmeans_coarse_iters, n_init, random_state)
+        C2 = train_coarse(second_half, V, kmeans_coarse_iters, n_init, random_state)
 
     # Compute local rotations
     if Rs is not None and mus is not None:
@@ -386,8 +382,8 @@ def train(data, V=8, M=4, subquantizer_clusters=256, parameters=None,
     projected2 = project_residuals_to_local(residuals2, assignments2, Rs2, mu2)
 
     logger.info('Fitting subquantizers...')
-    subquantizers1 = train_subquantizers(projected1, M / 2, subquantizer_clusters, kmeans_local_iters, n_init, random_state=random_state, n_jobs=n_jobs)
-    subquantizers2 = train_subquantizers(projected2, M / 2, subquantizer_clusters, kmeans_local_iters, n_init, random_state=random_state, n_jobs=n_jobs)
+    subquantizers1 = train_subquantizers(projected1, M / 2, subquantizer_clusters, kmeans_local_iters, n_init, random_state=random_state)
+    subquantizers2 = train_subquantizers(projected2, M / 2, subquantizer_clusters, kmeans_local_iters, n_init, random_state=random_state)
     logger.info('Done fitting subquantizers.')
 
     return (C1, C2), (Rs1, Rs2), (mu1, mu2), (subquantizers1, subquantizers2)
@@ -448,7 +444,7 @@ class LOPQModel(object):
             self.M = M
             self.subquantizer_clusters = subquantizer_clusters
 
-    def fit(self, data, kmeans_coarse_iters=10, kmeans_local_iters=20, n_init=10, subquantizer_sample_ratio=1.0, random_state=None, verbose=False, n_jobs=1):
+    def fit(self, data, kmeans_coarse_iters=10, kmeans_local_iters=20, n_init=10, subquantizer_sample_ratio=1.0, random_state=None, verbose=False):
         """
         Fit a model with the current model parameters. This method will use existing parameters and only
         train missing parameters.
@@ -466,14 +462,13 @@ class LOPQModel(object):
             a random seed used in all random operations during training if provided
         :param bool verbose:
             a bool enabling verbose output during training
-        :param int n_jobs:
-            the number of jobs to use for KMeans cluster computation
+
         """
         existing_parameters = (self.Cs, self.Rs, self.mus, self.subquantizers)
 
         parameters = train(data, self.V, self.M, self.subquantizer_clusters, existing_parameters,
                            kmeans_coarse_iters, kmeans_local_iters, n_init, subquantizer_sample_ratio,
-                           random_state, verbose, n_jobs)
+                           random_state, verbose)
 
         self.Cs, self.Rs, self.mus, self.subquantizers = parameters
 
